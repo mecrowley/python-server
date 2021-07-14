@@ -29,26 +29,29 @@ def get_all_customers():
     return CUSTOMERS
 
 def get_single_customer(id):
-
+    """get a single customer by its id
+    """
     requested_customer = None
-
     for customer in CUSTOMERS:
         if customer["id"] == id:
             requested_customer = customer
-
     return requested_customer
 
 def create_customer(customer):
+    """add a customer to the database
+    """
     max_id = CUSTOMERS[-1]["id"]
-
-    # Add 1 to whatever that number is
     new_id = max_id + 1
-
-    # Add an `id` property to the animal dictionary
     customer["id"] = new_id
-
-    # Add the animal dictionary to the list
     CUSTOMERS.append(customer)
-
-    # Return the dictionary with `id` property added
     return customer
+
+def delete_customer(id):
+    """delete a customer from the database
+    """
+    customer_index = -1
+    for index, customer in enumerate(CUSTOMERS):
+        if customer["id"] == id:
+            customer_index = index
+    if customer_index >= 0:
+        CUSTOMERS.pop(customer_index)

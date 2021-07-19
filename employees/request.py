@@ -1,3 +1,8 @@
+import sqlite3
+import json
+from models import Employee
+
+
 EMPLOYEES = [
     {
         "id": 1,
@@ -23,18 +28,48 @@ EMPLOYEES = [
 
 
 def get_all_employees():
-    """Returns a list of the employees
+    """Returns a list of the employees from kennel.db
     """
-    return EMPLOYEES
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+        SELECT
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        FROM employee e
+        """)
+
+        employees = []
+        dataset = db_cursor.fetchall()
+        for row in dataset:
+            employee = Employee(row['id'], row['name'], row['address'], row['location_id'])
+            employees.append(employee.__dict__)
+
+    return json.dumps(employees)
 
 def get_single_employee(id):
     """get a single employee by its id
     """
-    requested_employee = None
-    for employee in EMPLOYEES:
-        if employee["id"] == id:
-            requested_employee = employee
-    return requested_employee
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+        SELECT
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        FROM employee e
+        WHERE e.id = ?
+        """, ( id, ))
+
+        data = db_cursor.fetchone()
+        employee = Employee(data['id'], data['name'], data['address'], data['location_id'])
+
+        return json.dumps(employee.__dict__)
 
 def create_employee(employee):
     """add an employee to the database

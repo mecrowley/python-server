@@ -2,7 +2,9 @@ class Employee():
 
     """employee data
     """
-    def __init__(self, id, name, location_id):
+    def __init__(self, id, name, address, location_id):
         self.id = id
         self.name = name
+        self.address = address
         self.location_id = location_id
+        

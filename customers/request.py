@@ -1,3 +1,7 @@
+import sqlite3
+import json
+from models import Customer
+
 CUSTOMERS = [
     {
         "id": 2,
@@ -23,19 +27,55 @@ CUSTOMERS = [
     }
 ]
 
+
 def get_all_customers():
-    """Returns a list of the customers
+    """Returns a list of the customers from kennel.db
     """
-    return CUSTOMERS
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+        SELECT
+            c.id,
+            c.name,
+            c.address,
+            c.email,
+            c.password
+        FROM customer c
+        """)
+        customers = []
+        dataset = db_cursor.fetchall()
+        for row in dataset:
+            customer = Customer(row['id'], row['name'], row['address'],
+                            row['email'], row['password'])
+            customers.append(customer.__dict__)
+
+    return json.dumps(customers)
+
 
 def get_single_customer(id):
     """get a single customer by its id
     """
-    requested_customer = None
-    for customer in CUSTOMERS:
-        if customer["id"] == id:
-            requested_customer = customer
-    return requested_customer
+    with sqlite3.connect("./kennel.db") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        db_cursor.execute("""
+        SELECT
+            c.id,
+            c.name,
+            c.address,
+            c.email,
+            c.password
+        FROM customer c
+        WHERE c.id = ?
+        """, ( id, ))
+
+        data = db_cursor.fetchone()
+        customer = Customer(data['id'], data['name'], data['address'],
+                            data['email'], data['password'])
+
+        return json.dumps(customer.__dict__)
+
 
 def create_customer(customer):
     """add a customer to the database
@@ -46,6 +86,7 @@ def create_customer(customer):
     CUSTOMERS.append(customer)
     return customer
 
+
 def delete_customer(id):
     """delete a customer from the database
     """
@@ -55,6 +96,7 @@ def delete_customer(id):
             customer_index = index
     if customer_index >= 0:
         CUSTOMERS.pop(customer_index)
+
 
 def update_customer(id, new_customer):
     """update a customer in the database

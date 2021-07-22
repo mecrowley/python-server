@@ -46,9 +46,8 @@ def get_all_animals():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # Animal class above.
-            animal = Animal(row['id'], row['name'], row['breed'],
-                            row['status'], row['location_id'],
-                            row['customer_id'])
+            animal = Animal(row['id'], row['name'], row['breed'], row['status'],
+                            row['location_id'], row['customer_id'])
 
             # Create a Location instance from the current row
             location = Location(row['location_id'], row['location_name'], row['location_address'])
@@ -99,9 +98,8 @@ def get_single_animal(id):
         data = db_cursor.fetchone()
 
         # Create an animal instance from the current row
-        animal = Animal(data['id'], data['name'], data['breed'],
-                        data['status'], data['location_id'],
-                        data['customer_id'])
+        animal = Animal(data['id'], data['name'], data['breed'], data['status'],
+                            data['location_id'], data['customer_id'])
 
         # Create a Location instance from the current row
         location = Location(data['location_id'], data['location_name'], data['location_address'])
@@ -140,8 +138,8 @@ def get_animals_by_location(location_id):
         dataset = db_cursor.fetchall()
 
         for row in dataset:
-            animal = Animal(row['id'], row['name'], row['breed'],
-                            row['status'], row['location_id'], row['customer_id'])
+            animal = Animal(row['id'], row['name'], row['breed'], row['status'],
+                            row['location_id'], row['customer_id'])
 
             # Create a Location instance from the current row
             location = Location(row['location_id'], row['location_name'], row['location_address'])
@@ -199,23 +197,33 @@ def get_animals_by_status(status):
     return json.dumps(animals)
 
 
-#def create_animal(animal):
-    #"""add an animal to the database
-    #"""
-    # Get the id value of the last animal in the list
-    #max_id = ANIMALS[-1]["id"]
+def create_animal(new_animal):
 
-    # Add 1 to whatever that number is
-    #new_id = max_id + 1
+    """posts a new animal to the database
+    """
+    with sqlite3.connect("./kennel.db") as conn:
+        db_cursor = conn.cursor()
 
-    # Add an `id` property to the animal dictionary
-    #animal["id"] = new_id
+        db_cursor.execute("""
+        INSERT INTO Animal
+            ( name, breed, status, location_id, customer_id)
+        VALUES
+            ( ?, ?, ?, ?, ?);
+        """, (new_animal['name'], new_animal['breed'], new_animal['status'],
+              new_animal['location_id'], new_animal['customer_id']))
 
-    # Add the animal dictionary to the list
-    #ANIMALS.append(animal)
+        # The `lastrowid` property on the cursor will return
+        # the primary key of the last thing that got added to
+        # the database.
+        id = db_cursor.lastrowid
 
-    # Return the dictionary with `id` property added
-    #return animal
+        # Add the `id` property to the animal dictionary that
+        # was sent by the client so that the client sees the
+        # primary key in the response.
+        new_animal['id'] = id
+
+
+    return json.dumps(new_animal)
 
 
 def delete_animal(id):

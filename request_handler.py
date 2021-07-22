@@ -1,6 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from animals import get_all_animals, get_single_animal, delete_animal, update_animal, get_animals_by_location, get_animals_by_status
+from animals import get_all_animals, get_single_animal, delete_animal, create_animal, update_animal, get_animals_by_location, get_animals_by_status
 from employees import get_all_employees, get_single_employee, create_employee, delete_employee, update_employee, get_employees_by_location
 from locations import get_all_locations, get_single_location, create_location, delete_location, update_location
 from customers import get_all_customers, get_single_customer, create_customer, delete_customer, update_customer, get_customers_by_email
@@ -87,7 +87,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         # items in it, which means the request was for
         # `/animals` or `/animals/2`
         if len(parsed) == 2:
-            ( resource, id ) = parsed
+            ( resource, id) = parsed
 
             if resource == "animals":
                 if id is not None:
@@ -152,8 +152,8 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Add a new animal to the list. Don't worry about
         # the orange squiggle, you'll define the create_animal
         # function next.
-        #if resource == "animals":
-            #response = create_animal(post_body)
+        if resource == "animals":
+            response = create_animal(post_body)
         if resource == "employees":
             response = create_employee(post_body)
         elif resource == "locations":
